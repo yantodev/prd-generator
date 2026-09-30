@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { callOpenRouterJSON } from "@/lib/openrouter"
+import { callAIJSON } from "@/lib/ai"
 import type { ConceptResult } from "@/lib/types"
 
 export const runtime = "nodejs"
@@ -19,10 +19,10 @@ Tulis dalam Bahasa Indonesia yang natural dan profesional.`
 
 export async function POST(req: Request) {
   try {
-    const { concept, feedback, previous, apiKey, model } = await req.json()
+    const { concept, feedback, previous, baseUrl, apiKey, model } = await req.json()
 
-    if (!apiKey) {
-      return NextResponse.json({ error: "API key required" }, { status: 400 })
+    if (!baseUrl || !apiKey) {
+      return NextResponse.json({ error: "Base URL dan token API wajib diisi" }, { status: 400 })
     }
     if (!concept || typeof concept !== "string") {
       return NextResponse.json({ error: "concept required" }, { status: 400 })
@@ -33,7 +33,8 @@ export async function POST(req: Request) {
       userPrompt = `Konsep produk awal:\n"""\n${concept}\n"""\n\nAnalisis sebelumnya:\n${JSON.stringify(previous)}\n\nFeedback dari pengguna untuk merevisi:\n"""\n${feedback}\n"""\n\nPerbarui dan keluarkan JSON terbaru sesuai skema.`
     }
 
-    const result = await callOpenRouterJSON<ConceptResult>({
+    const result = await callAIJSON<ConceptResult>({
+      baseUrl,
       apiKey,
       model,
       messages: [

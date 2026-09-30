@@ -1,4 +1,4 @@
-import { callOpenRouter } from "@/lib/openrouter"
+import { callAI } from "@/lib/ai"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -49,17 +49,18 @@ Tulis dalam Bahasa Indonesia yang profesional dan detail. Jangan tambahkan kata 
 
 export async function POST(req: Request) {
   try {
-    const { concept, conceptResult, architecture, apiKey, model } =
+    const { concept, conceptResult, architecture, baseUrl, apiKey, model } =
       await req.json()
-    if (!apiKey) {
-      return new Response(JSON.stringify({ error: "API key required" }), {
+    if (!baseUrl || !apiKey) {
+      return new Response(JSON.stringify({ error: "Base URL dan token API wajib diisi" }), {
         status: 400,
       })
     }
 
     const userPrompt = `Konsep produk:\n"""\n${concept}\n"""\n\nAnalisis konsep:\n${JSON.stringify(conceptResult, null, 2)}\n\nTech stack yang dipilih pengguna:\n${JSON.stringify(architecture, null, 2)}\n\nTuliskan PRD markdown lengkap.`
 
-    const upstream = await callOpenRouter({
+    const upstream = await callAI({
+      baseUrl,
       apiKey,
       model,
       messages: [
@@ -75,7 +76,7 @@ export async function POST(req: Request) {
       })
     }
 
-    // Transform OpenRouter SSE to plain text stream of markdown deltas
+    // Transform OpenAI-compatible SSE to plain text stream of markdown deltas
     const stream = new ReadableStream({
       async start(controller) {
         const reader = upstream.body!.getReader()

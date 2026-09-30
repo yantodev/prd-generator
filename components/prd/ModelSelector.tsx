@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import { Check, ChevronDown, Search, Sparkles } from "lucide-react"
-import type { OpenRouterModel } from "@/lib/types"
+import type { AIModel } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
 function formatPrice(p?: string) {
@@ -10,7 +10,7 @@ function formatPrice(p?: string) {
   const n = parseFloat(p)
   if (!Number.isFinite(n)) return null
   if (n === 0) return "Gratis"
-  // OpenRouter pricing is per token; show per 1M tokens
+  // Compatible gateways may expose pricing per token; show per 1M tokens
   const per1M = n * 1_000_000
   if (per1M < 0.01) return `$${per1M.toFixed(4)}/1M`
   if (per1M < 1) return `$${per1M.toFixed(3)}/1M`
@@ -24,7 +24,7 @@ function formatContext(ctx?: number) {
   return String(ctx)
 }
 
-function isFree(m: OpenRouterModel) {
+function isFree(m: AIModel) {
   if (m.id.endsWith(":free")) return true
   const p = parseFloat(m.pricing?.prompt ?? "")
   const c = parseFloat(m.pricing?.completion ?? "")
@@ -38,7 +38,7 @@ export function ModelSelector({
   onChange,
 }: {
   value: string
-  options: OpenRouterModel[]
+  options: AIModel[]
   loading?: boolean
   onChange: (id: string) => void
 }) {

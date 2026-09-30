@@ -17,7 +17,6 @@ import type {
   Step,
   TechOption,
 } from "@/lib/types"
-import { DEFAULT_MODELS } from "@/lib/types"
 
 type StepKey = "concept" | "architecture" | "document"
 
@@ -44,8 +43,9 @@ export default function Page() {
   const [error, setError] = useState<string | null>(null)
 
   const [config, setConfig] = useState<ApiKeyConfig>({
+    baseUrl: "http://127.0.0.1:20128/v1",
     apiKey: "",
-    model: DEFAULT_MODELS[0],
+    model: "auto",
   })
   const [apiKeyOpen, setApiKeyOpen] = useState(false)
   const [hydrated, setHydrated] = useState(false)
@@ -59,7 +59,7 @@ export default function Page() {
   }, [])
 
   const ensureKey = (): boolean => {
-    if (!config.apiKey) {
+    if (!config.baseUrl || !config.apiKey) {
       setApiKeyOpen(true)
       return false
     }

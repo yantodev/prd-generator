@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { callOpenRouterJSON } from "@/lib/openrouter"
+import { callAIJSON } from "@/lib/ai"
 import type { ArchitectureResult } from "@/lib/types"
 
 export const runtime = "nodejs"
@@ -25,13 +25,14 @@ Setiap "description" 2-3 kalimat dalam Bahasa Indonesia yang menjelaskan kelebih
 
 export async function POST(req: Request) {
   try {
-    const { concept, conceptResult, apiKey, model } = await req.json()
-    if (!apiKey)
-      return NextResponse.json({ error: "API key required" }, { status: 400 })
+    const { concept, conceptResult, baseUrl, apiKey, model } = await req.json()
+    if (!baseUrl || !apiKey)
+      return NextResponse.json({ error: "Base URL dan token API wajib diisi" }, { status: 400 })
 
     const userPrompt = `Konsep produk:\n"""\n${concept}\n"""\n\nAnalisis konsep:\n${JSON.stringify(conceptResult, null, 2)}\n\nHasilkan rekomendasi arsitektur JSON sesuai skema.`
 
-    const result = await callOpenRouterJSON<ArchitectureResult>({
+    const result = await callAIJSON<ArchitectureResult>({
+      baseUrl,
       apiKey,
       model,
       messages: [

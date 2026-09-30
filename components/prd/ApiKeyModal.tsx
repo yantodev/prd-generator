@@ -10,28 +10,30 @@ import {
   ShieldCheck,
   Loader2,
 } from "lucide-react"
-import { DEFAULT_MODELS, type OpenRouterModel } from "@/lib/types"
+import { DEFAULT_MODELS, type AIModel, type ApiKeyConfig } from "@/lib/types"
 import { ModelSelector } from "./ModelSelector"
 
 const STORAGE_KEY = "prd-engine-config"
+const DEFAULT_BASE_URL = "http://127.0.0.1:20128/v1"
 
-export function loadConfig(): { apiKey: string; model: string } {
+export function loadConfig(): ApiKeyConfig {
   if (typeof window === "undefined")
-    return { apiKey: "", model: DEFAULT_MODELS[0] }
+    return { baseUrl: DEFAULT_BASE_URL, apiKey: "", model: "auto" }
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
       return {
+        baseUrl: parsed.baseUrl || DEFAULT_BASE_URL,
         apiKey: parsed.apiKey || "",
-        model: parsed.model || DEFAULT_MODELS[0],
+        model: parsed.model || "auto",
       }
     }
   } catch {}
-  return { apiKey: "", model: DEFAULT_MODELS[0] }
+  return { baseUrl: DEFAULT_BASE_URL, apiKey: "", model: "auto" }
 }
 
-export function saveConfig(cfg: { apiKey: string; model: string }) {
+export function saveConfig(cfg: ApiKeyConfig) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg))
 }
 
@@ -42,11 +44,12 @@ export function ApiKeyModal({
 }: {
   open: boolean
   onClose: () => void
-  onSave: (cfg: { apiKey: string; model: string }) => void
+  onSave: (cfg: ApiKeyConfig) => void
 }) {
+  const [baseUrl, setBaseUrl] = useState(DEFAULT_BASE_URL)
   const [apiKey, setApiKey] = useState("")
-  const [model, setModel] = useState(DEFAULT_MODELS[0])
-  const [models, setModels] = useState<OpenRouterModel[]>([])
+  const [model, setModel] = useState("auto")
+  const [models, setModels] = useState<AIModel[]>([])
   const [modelsLoading, setModelsLoading] = useState(false)
   const [modelsError, setModelsError] = useState<string | null>(null)
   const [showKey, setShowKey] = useState(false)
@@ -54,6 +57,7 @@ export function ApiKeyModal({
   useEffect(() => {
     if (open) {
       const cfg = loadConfig()
+      setBaseUrl(cfg.baseUrl)
       setApiKey(cfg.apiKey)
       setModel(cfg.model)
     }
@@ -66,12 +70,25 @@ export function ApiKeyModal({
     setModelsLoading(true)
     setModelsError(null)
 
-    fetch("/api/openrouter-models")
+    const cfg = loadConfig()
+    if (!cfg.apiKey) {
+      setModels(DEFAULT_MODELS.map((id) => ({ id })))
+      setModelsLoading(false)
+      return () => {
+        cancelled = true
+      }
+    }
+
+    fetch("/api/models", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ baseUrl: cfg.baseUrl, apiKey: cfg.apiKey }),
+    })
       .then(async (res) => {
         const data = await res.json()
         if (!res.ok)
-          throw new Error(data.error || "Gagal mengambil model OpenRouter")
-        return data.models as OpenRouterModel[]
+          throw new Error(data.error || "Gagal mengambil model dari endpoint AI")
+        return data.models as AIModel[]
       })
       .then((nextModels) => {
         if (cancelled) return
@@ -86,7 +103,7 @@ export function ApiKeyModal({
         setModelsError(
           error instanceof Error
             ? error.message
-            : "Gagal mengambil model OpenRouter"
+            : "Gagal mengambil model dari endpoint AI"
         )
         setModels(DEFAULT_MODELS.map((id) => ({ id })))
       })
@@ -102,13 +119,17 @@ export function ApiKeyModal({
   if (!open) return null
 
   const handleSave = () => {
-    const cfg = { apiKey: apiKey.trim(), model }
+    const cfg = {
+      baseUrl: baseUrl.trim().replace(/\/+$/, ""),
+      apiKey: apiKey.trim(),
+      model,
+    }
     saveConfig(cfg)
     onSave(cfg)
     onClose()
   }
 
-  const modelOptions: OpenRouterModel[] = models.length
+  const modelOptions: AIModel[] = models.length
     ? models
     : DEFAULT_MODELS.map((id) => ({ id }))
 
@@ -148,21 +169,34 @@ export function ApiKeyModal({
                 Konfigurasi API
               </h2>
               <p className="mt-0.5 text-[13px] text-[#9a9a9a]">
-                Hubungkan OpenRouter untuk mengaktifkan generator PRD.
+                Hubungkan 9Router atau endpoint AI OpenAI-compatible lainnya.
               </p>
             </div>
           </div>
 
           <div className="mb-5">
             <label className="text-pink mb-2 block text-[11px] font-bold tracking-[0.18em]">
-              OPENROUTER API KEY
+              BASE URL ENDPOINT
+            </label>
+            <input
+              type="url"
+              value={baseUrl}
+              onChange={(e) => setBaseUrl(e.target.value)}
+              placeholder="http://127.0.0.1:20128/v1"
+              className="mb-3 w-full rounded-lg border border-[#2a2a2a] bg-[#0a0a0a] px-3.5 py-3 font-mono text-sm transition-all outline-none focus:border-[#ff1f5a] focus:ring-1 focus:ring-[#ff1f5a]/40"
+            />
+            <p className="mb-4 text-[11px] text-[#6a6a6a]">
+              Contoh 9Router: <span className="font-mono text-[#b7b7b7]">http://127.0.0.1:20128/v1</span>. Suffix <span className="font-mono">/chat/completions</span> tidak perlu ditulis.
+            </p>
+            <label className="text-pink mb-2 block text-[11px] font-bold tracking-[0.18em]">
+              API TOKEN
             </label>
             <div className="relative">
               <input
                 type={showKey ? "text" : "password"}
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
-                placeholder="sk-or-v1-..."
+                placeholder="Token 9Router / Bearer token"
                 className="w-full rounded-lg border border-[#2a2a2a] bg-[#0a0a0a] px-3.5 py-3 pr-10 font-mono text-sm transition-all outline-none focus:border-[#ff1f5a] focus:ring-1 focus:ring-[#ff1f5a]/40"
               />
               <button
@@ -180,12 +214,12 @@ export function ApiKeyModal({
             </div>
             <div className="mt-2 flex items-center justify-between gap-3">
               <a
-                href="https://openrouter.ai/keys"
+                href="https://github.com/decolua/9router"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-pink inline-flex items-center gap-1 text-xs hover:underline"
               >
-                Dapatkan key gratis di openrouter.ai
+                Lihat dokumentasi 9Router
                 <ExternalLink className="h-3 w-3" />
               </a>
               <span className="inline-flex shrink-0 items-center gap-1 text-[11px] text-[#6a6a6a]">
@@ -219,9 +253,9 @@ export function ApiKeyModal({
               </p>
             ) : (
               <p className="mt-2 text-[11px] text-[#6a6a6a]">
-                Daftar diambil real-time dari OpenRouter. Model{" "}
+                Daftar model diambil real-time dari endpoint yang kamu masukkan. Model{" "}
                 <span className="font-semibold text-emerald-400">GRATIS</span>{" "}
-                tidak butuh kredit.
+                ditandai otomatis bila gateway menyediakannya.
               </p>
             )}
           </div>
@@ -235,7 +269,7 @@ export function ApiKeyModal({
             </button>
             <button
               onClick={handleSave}
-              disabled={!apiKey.trim()}
+              disabled={!baseUrl.trim() || !apiKey.trim()}
               className="btn-pink flex-1 rounded-lg px-4 py-3 text-sm font-semibold"
             >
               Simpan & Lanjut

@@ -39,11 +39,12 @@ export type SelectedArchitecture = {
 }
 
 export type ApiKeyConfig = {
+  baseUrl: string
   apiKey: string
   model: string
 }
 
-export type OpenRouterModel = {
+export type AIModel = {
   id: string
   name?: string
   context_length?: number
@@ -68,10 +69,9 @@ export const CATEGORY_LABELS: Record<ArchCategory, string> = {
 }
 
 export const DEFAULT_MODELS = [
-  "google/gemini-2.0-flash-exp:free",
-  "google/gemini-flash-1.5",
+  "auto",
   "openai/gpt-4o-mini",
-  "openai/gpt-4o",
-  "anthropic/claude-3.5-sonnet",
+  "google/gemini-2.0-flash",
+  "anthropic/claude-3-5-sonnet",
   "meta-llama/llama-3.3-70b-instruct",
 ]
