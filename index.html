@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d1117">
+  <title>Prism — PRD Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0e13;
+      --surface: #11151d;
+      --surface-2: #161b24;
+      --surface-3: #1b212c;
+      --line: #27303d;
+      --line-soft: rgba(163, 177, 198, .12);
+      --text: #f4f7fb;
+      --muted: #8d9aab;
+      --muted-2: #647184;
+      --accent: #b8ef62;
+      --accent-strong: #95d843;
+      --accent-soft: rgba(184, 239, 98, .12);
+      --blue: #82b8ff;
+      --blue-soft: rgba(130, 184, 255, .12);
+      --amber: #f2c26b;
+      --danger: #ff8a8a;
+      --shadow: 0 18px 60px rgba(0,0,0,.25);
+      --radius-xl: 24px;
+      --radius-lg: 16px;
+      --radius-md: 11px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.55 'DM Sans', system-ui, sans-serif;
+      letter-spacing: -.01em;
+    }
+    body.light {
+      --bg: #eef1f5; --surface: #fff; --surface-2: #f7f9fb; --surface-3: #edf1f5;
+      --line: #dbe1e8; --line-soft: rgba(35, 48, 65, .12); --text: #17202c;
+      --muted: #6e7b8b; --muted-2: #8490a0; --accent-soft: rgba(96, 154, 24, .11);
+      --blue-soft: rgba(60, 125, 220, .1); --shadow: 0 18px 50px rgba(26, 40, 57, .09);
+    }
+    button, input, textarea, select { font: inherit; }
+    button { cursor: pointer; }
+    .app-shell { min-height: 100vh; display: flex; }
+    .sidebar {
+      width: 252px; flex: 0 0 252px; border-right: 1px solid var(--line);
+      background: var(--surface); display: flex; flex-direction: column; padding: 22px 14px 16px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; padding: 0 10px 27px; }
+    .brand-mark { width: 31px; height: 31px; border-radius: 9px; background: var(--accent); color: #152007; display:grid; place-items:center; font-weight:700; font-family:'Space Grotesk'; box-shadow: 0 0 0 5px var(--accent-soft); }
+    .brand-name { font-family: 'Space Grotesk'; font-weight: 700; font-size: 17px; letter-spacing: -.04em; }
+    .brand-name span { color: var(--muted); font-weight: 500; font-size: 11px; margin-left: 4px; letter-spacing: 0; }
+    .workspace-label, .eyebrow { text-transform: uppercase; letter-spacing: .14em; font-size: 10px; font-weight: 700; color: var(--muted-2); }
+    .workspace-label { padding: 0 10px 9px; }
+    .workspace-switch { margin: 0 4px 20px; border: 1px solid var(--line); background: var(--surface-2); padding: 10px; border-radius: 10px; display:flex; align-items:center; justify-content:space-between; color:var(--text); }
+    .workspace-switch strong { display:block; font-size:12px; margin-bottom:1px; }
+    .workspace-switch small { color:var(--muted); font-size:10px; }
+    .workspace-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--accent); margin-right:6px; }
+    .nav { display:flex; flex-direction:column; gap:3px; }
+    .nav button, .doc-item { border:0; background:transparent; color:var(--muted); display:flex; align-items:center; gap:11px; width:100%; border-radius:9px; padding:10px 11px; text-align:left; font-weight:600; }
+    .nav button:hover, .nav button.active, .doc-item:hover, .doc-item.active { color:var(--text); background:var(--surface-3); }
+    .nav button.active { box-shadow: inset 2px 0 var(--accent); }
+    .nav-icon { width:16px; text-align:center; color:currentColor; font-size:15px; }
+    .sidebar-section { margin-top:26px; }
+    .sidebar-section-head { display:flex; justify-content:space-between; align-items:center; padding:0 10px 8px; }
+    .sidebar-section-head button { border:0; color:var(--muted); background:none; font-size:18px; line-height:1; padding:0; }
+    .doc-item { font-size:12px; padding:9px 10px; }
+    .doc-item .doc-dot { width:6px; height:6px; border-radius:50%; background:var(--amber); flex:0 0 auto; }
+    .doc-item.current .doc-dot { background:var(--accent); }
+    .doc-item small { margin-left:auto; color:var(--muted-2); font-weight:500; font-size:10px; }
+    .sidebar-bottom { margin-top:auto; border-top:1px solid var(--line); padding-top:15px; }
+    .user-chip { display:flex; align-items:center; gap:9px; padding:8px 9px; }
+    .avatar { width:28px; height:28px; border-radius:50%; display:grid; place-items:center; background:#263e62; color:#b8d5ff; font-weight:700; font-size:11px; }
+    .user-chip strong { font-size:11px; display:block; }
+    .user-chip small { color:var(--muted); font-size:10px; }
+    .main { flex:1; min-width:0; }
+    .topbar { height:67px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; padding:0 30px; background: color-mix(in srgb, var(--bg) 88%, transparent); position:sticky; top:0; z-index:4; backdrop-filter: blur(16px); }
+    .crumbs { color:var(--muted); display:flex; align-items:center; gap:9px; font-size:12px; }
+    .crumbs strong { color:var(--text); font-weight:600; }
+    .crumb-sep { color:var(--muted-2); }
+    .top-actions { display:flex; gap:8px; align-items:center; }
+    .icon-btn { width:34px; height:34px; border-radius:9px; border:1px solid var(--line); background:var(--surface); color:var(--muted); display:grid; place-items:center; font-size:15px; }
+    .icon-btn:hover { color:var(--text); border-color:var(--muted-2); }
+    .avatar.mini { width:28px; height:28px; margin-left:5px; }
+    .page { max-width: 1460px; margin:0 auto; padding: 38px 36px 64px; }
+    .page-head { display:flex; align-items:flex-end; justify-content:space-between; gap:25px; margin-bottom:31px; }
+    .page-title { margin:7px 0 8px; font:700 clamp(27px, 3vw, 39px)/1.07 'Space Grotesk', sans-serif; letter-spacing:-.055em; }
+    .page-subtitle { color:var(--muted); margin:0; max-width:540px; font-size:14px; }
+    .head-meta { display:flex; flex-direction:column; align-items:flex-end; gap:10px; }
+    .save-state { color:var(--muted); font-size:11px; display:flex; align-items:center; gap:6px; }
+    .save-state::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 4px var(--accent-soft); }
+    .head-buttons { display:flex; gap:8px; }
+    .btn { border:1px solid var(--line); background:var(--surface); color:var(--text); border-radius:9px; padding:9px 13px; font-weight:700; font-size:12px; display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:38px; }
+    .btn:hover { border-color:var(--muted-2); background:var(--surface-2); }
+    .btn.primary { border-color:var(--accent); color:#172007; background:var(--accent); }
+    .btn.primary:hover { background:var(--accent-strong); border-color:var(--accent-strong); }
+    .btn.ghost { background:transparent; }
+    .btn.small { min-height:32px; padding:7px 10px; font-size:11px; }
+    .app-grid { display:grid; grid-template-columns: minmax(0, 1.04fr) minmax(420px, .96fr); gap:20px; align-items:start; }
+    .form-column { min-width:0; }
+    .stepper { border:1px solid var(--line); background:var(--surface); border-radius:var(--radius-lg); padding:11px; display:grid; grid-template-columns:repeat(3, 1fr); gap:5px; margin-bottom:15px; }
+    .step { display:flex; align-items:center; gap:9px; border:0; color:var(--muted); background:transparent; border-radius:10px; padding:9px; text-align:left; }
+    .step:hover, .step.active { background:var(--surface-3); color:var(--text); }
+    .step.active .step-num, .step.done .step-num { background:var(--accent); color:#172007; border-color:var(--accent); }
+    .step-num { width:25px; height:25px; border:1px solid var(--line); border-radius:50%; display:grid; place-items:center; font-size:10px; font-weight:700; flex:0 0 auto; }
+    .step-title { display:block; font-size:11px; font-weight:700; }
+    .step-hint { color:var(--muted-2); font-size:9px; display:block; margin-top:1px; }
+    .form-card { border:1px solid var(--line); background:var(--surface); border-radius:var(--radius-lg); padding:22px; margin-bottom:15px; scroll-margin-top:85px; }
+    .section-head { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; margin-bottom:19px; }
+    .section-head h2 { font:600 17px/1.2 'Space Grotesk'; margin:4px 0 5px; letter-spacing:-.03em; }
+    .section-head p { color:var(--muted); margin:0; font-size:12px; }
+    .section-num { width:31px; height:31px; border-radius:9px; background:var(--accent-soft); color:var(--accent); display:grid; place-items:center; font-weight:700; font-family:'Space Grotesk'; font-size:12px; }
+    .field-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .field { display:flex; flex-direction:column; gap:7px; }
+    .field.full { grid-column:1/-1; }
+    .field label { color:var(--text); font-size:11px; font-weight:700; display:flex; justify-content:space-between; gap:10px; }
+    .field label span { color:var(--muted-2); font-weight:500; font-size:10px; }
+    input, textarea, select { outline:none; border:1px solid var(--line); background:var(--surface-2); color:var(--text); border-radius:9px; padding:11px 12px; width:100%; transition:border .18s, box-shadow .18s, background .18s; }
+    input::placeholder, textarea::placeholder { color:var(--muted-2); }
+    input:focus, textarea:focus, select:focus { border-color:var(--accent-strong); box-shadow:0 0 0 3px var(--accent-soft); }
+    textarea { min-height:89px; resize:vertical; line-height:1.5; }
+    textarea.tall { min-height:116px; }
+    select { appearance:none; background-image:linear-gradient(45deg, transparent 50%, var(--muted) 50%),linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position:calc(100% - 16px) 50%,calc(100% - 11px) 50%; background-size:5px 5px,5px 5px; background-repeat:no-repeat; padding-right:35px; }
+    .field-note { font-size:10px; color:var(--muted-2); margin-top:-2px; }
+    .chip-row { display:flex; flex-wrap:wrap; gap:7px; }
+    .chip { border:1px solid var(--line); background:var(--surface-2); color:var(--muted); border-radius:999px; padding:6px 10px; font-size:10px; font-weight:600; }
+    .chip:hover { color:var(--text); border-color:var(--muted-2); }
+    .chip.selected { color:var(--accent); background:var(--accent-soft); border-color:rgba(184,239,98,.35); }
+    .toggle-list { display:grid; grid-template-columns:repeat(2, 1fr); gap:9px; }
+    .toggle-row { display:flex; align-items:center; justify-content:space-between; gap:8px; background:var(--surface-2); border:1px solid var(--line); border-radius:9px; padding:10px 11px; }
+    .toggle-row span { font-size:11px; font-weight:600; }
+    .switch { width:31px; height:18px; border-radius:20px; background:var(--line); border:0; padding:2px; position:relative; flex:0 0 auto; transition:background .18s; }
+    .switch::after { content:''; display:block; width:14px; height:14px; border-radius:50%; background:var(--muted); transition:transform .18s, background .18s; }
+    .switch.on { background:var(--accent-strong); }
+    .switch.on::after { background:#fff; transform:translateX(13px); }
+    .form-footer { display:flex; align-items:center; justify-content:space-between; gap:10px; color:var(--muted); font-size:11px; }
+    .form-footer-actions { display:flex; gap:8px; }
+    .preview-sticky { position:sticky; top:87px; min-width:0; }
+    .preview-card { background:#f7f5ef; color:#22282e; border-radius:var(--radius-xl); box-shadow:var(--shadow); overflow:hidden; border:1px solid rgba(255,255,255,.1); }
+    .preview-toolbar { background:#e9e7e0; padding:13px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(30,37,42,.12); }
+    .preview-toolbar-left { display:flex; gap:8px; align-items:center; }
+    .traffic { display:flex; gap:5px; margin-right:6px; }
+    .traffic i { display:block; width:7px; height:7px; border-radius:50%; background:#c6c4bd; }
+    .preview-label { font-size:11px; font-weight:700; color:#4f575b; }
+    .preview-toolbar .btn { background:rgba(255,255,255,.48); border-color:rgba(40,45,48,.14); color:#41494f; min-height:30px; padding:5px 9px; }
+    .preview-body { padding:31px 34px 36px; max-height: calc(100vh - 170px); overflow:auto; }
+    .preview-doc-kicker { color:#759944; font-size:10px; text-transform:uppercase; letter-spacing:.15em; font-weight:700; margin-bottom:11px; }
+    .preview-body h1 { font:700 clamp(25px,2.7vw,35px)/1.05 'Space Grotesk'; letter-spacing:-.06em; margin:0 0 10px; color:#1a2229; }
+    .preview-lede { color:#717a7d; margin:0 0 22px; font-size:13px; line-height:1.6; max-width:490px; }
+    .preview-meta { display:flex; gap:7px; flex-wrap:wrap; padding-bottom:22px; margin-bottom:24px; border-bottom:1px solid #dad8d0; }
+    .preview-meta span { font-size:10px; color:#697276; background:#e9e7df; border-radius:999px; padding:5px 9px; }
+    .preview-section { margin:0 0 24px; }
+    .preview-section h3 { margin:0 0 9px; color:#20282e; font:600 14px 'Space Grotesk'; letter-spacing:-.02em; display:flex; align-items:center; gap:8px; }
+    .preview-section h3::before { content:''; width:14px; height:2px; background:#88b344; display:block; }
+    .preview-section p { color:#596267; margin:0; font-size:12px; line-height:1.65; white-space:pre-line; }
+    .preview-section ul { color:#596267; padding-left:18px; margin:7px 0 0; font-size:12px; line-height:1.7; }
+    .preview-section li::marker { color:#93b95b; }
+    .preview-callout { background:#e9f2dc; border-radius:10px; padding:12px 14px; color:#587233; font-size:11px; line-height:1.5; margin-top:8px; }
+    .preview-empty { color:#8a8e88 !important; font-style:italic; }
+    .preview-foot { border-top:1px solid #dad8d0; padding-top:16px; color:#969a95; font-size:10px; display:flex; justify-content:space-between; }
+    .progress-strip { display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); margin-bottom:15px; padding:12px 15px; }
+    .progress-track { flex:1; height:5px; background:var(--surface-3); border-radius:99px; overflow:hidden; }
+    .progress-fill { height:100%; width:0%; background:var(--accent); border-radius:99px; transition:width .3s ease; }
+    .progress-strip strong { font-size:11px; min-width:58px; text-align:right; }
+    .progress-strip small { color:var(--muted); font-size:10px; }
+    .tip-bar { margin:4px 0 15px; border:1px solid rgba(130,184,255,.25); background:var(--blue-soft); border-radius:10px; padding:11px 13px; display:flex; align-items:flex-start; gap:9px; color:var(--muted); font-size:11px; }
+    .tip-bar b { color:var(--blue); }
+    .ai-status { border:1px solid rgba(184,239,98,.25); background:var(--accent-soft); color:var(--accent); border-radius:999px; padding:5px 9px; font-size:10px; font-weight:700; cursor:pointer; }
+    .ai-status:hover { border-color:var(--accent); }
+    .ai-dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:currentColor; margin-right:5px; }
+    .ai-dot.offline { color:var(--muted-2); background:var(--muted-2); }
+    .ai-dot.busy { animation:pulse 1s infinite; }
+    @keyframes pulse { 50% { opacity:.35; transform:scale(.75); } }
+    .ai-modal { width:min(600px,100%); }
+    .ai-modal .modal-intro { color:var(--muted); font-size:12px; margin:-5px 0 18px; }
+    .ai-modal .modal-intro code { color:var(--accent); background:var(--accent-soft); border-radius:4px; padding:2px 4px; }
+    .ai-config-grid { display:grid; grid-template-columns:1fr 1fr; gap:13px; }
+    .ai-config-grid .field.full { grid-column:1/-1; }
+    .ai-config-grid .field label { color:var(--text); font-size:11px; font-weight:700; display:flex; justify-content:space-between; margin-bottom:7px; }
+    .ai-config-grid .field label span { color:var(--muted-2); font-size:10px; font-weight:500; }
+    .ai-config-grid input { padding:10px 11px; }
+    .ai-config-grid .field-note { display:block; color:var(--muted-2); font-size:10px; margin-top:6px; }
+    .ai-connection { min-height:17px; color:var(--muted); font-size:11px; margin-top:14px; }
+    .ai-connection.ok { color:var(--accent); }
+    .ai-connection.error { color:var(--danger); }
+    .ai-modal-footer { display:flex; justify-content:space-between; align-items:center; gap:10px; border-top:1px solid var(--line); margin-top:18px; padding-top:16px; }
+    .ai-modal-actions { display:flex; gap:8px; }
+    .toast { position:fixed; right:24px; bottom:24px; z-index:10; background:#222b35; color:#f6f8fa; border:1px solid #3a4654; border-radius:10px; padding:11px 14px; box-shadow:var(--shadow); transform:translateY(18px); opacity:0; pointer-events:none; transition:.25s; font-size:12px; }
+    .toast.show { transform:translateY(0); opacity:1; }
+    .modal-backdrop { position:fixed; inset:0; display:none; place-items:center; background:rgba(4,6,9,.7); z-index:20; padding:20px; }
+    .modal-backdrop.open { display:grid; }
+    .modal { width:min(470px,100%); border:1px solid var(--line); background:var(--surface); border-radius:16px; box-shadow:var(--shadow); padding:22px; }
+    .modal h2 { font:600 19px 'Space Grotesk'; margin:0 0 13px; }
+    .shortcut { display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--line); padding:11px 0 0; margin-top:11px; color:var(--muted); font-size:12px; }
+    kbd { background:var(--surface-3); border:1px solid var(--line); border-bottom-color:var(--muted-2); border-radius:5px; padding:3px 6px; color:var(--text); font-size:10px; }
+    @media (max-width:1100px) { .sidebar{width:216px;flex-basis:216px}.app-grid{grid-template-columns:1fr}.preview-sticky{position:relative;top:auto}.preview-body{max-height:none}.preview-card{max-width:none} }
+    @media (max-width:720px) { .sidebar{display:none}.topbar{padding:0 16px}.page{padding:25px 15px 44px}.page-head{display:block}.head-meta{align-items:flex-start;margin-top:18px}.app-grid{gap:14px}.form-card{padding:17px}.field-grid,.toggle-list{grid-template-columns:1fr}.field.full{grid-column:auto}.stepper{grid-template-columns:1fr}.step{padding:8px}.preview-body{padding:26px 20px}.head-buttons{flex-wrap:wrap}.top-actions .icon-btn:nth-child(2){display:none}.page-title{font-size:30px} }
+    @media print { .sidebar,.topbar,.page-head,.form-column,.preview-toolbar,.toast{display:none!important}.page{padding:0}.preview-sticky{position:static}.preview-card{box-shadow:none;border:0;border-radius:0}.preview-body{max-height:none;padding:28px}.main{width:100%} }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><div class="brand-mark">P</div><div class="brand-name">prism <span>studio</span></div></div>
+      <div class="workspace-label">Workspace</div>
+      <button class="workspace-switch" type="button"><span><strong><i class="workspace-dot"></i>Product Lab</strong><small>Personal workspace</small></span><span>⌄</span></button>
+      <nav class="nav" aria-label="Navigasi utama">
+        <button class="active" type="button"><span class="nav-icon">◈</span> PRD Studio</button>
+        <button type="button"><span class="nav-icon">⌘</span> Templates</button>
+        <button type="button"><span class="nav-icon">↗</span> Shared with me</button>
+      </nav>
+      <div class="sidebar-section">
+        <div class="sidebar-section-head"><span class="workspace-label">Recent PRDs</span><button type="button" id="newDocBtn" aria-label="Dokumen baru">＋</button></div>
+        <button class="doc-item current" type="button"><i class="doc-dot"></i><span>Beacon Mobile App</span><small>now</small></button>
+        <button class="doc-item" type="button"><i class="doc-dot"></i><span>Atlas Billing v2</span><small>2d</small></button>
+        <button class="doc-item" type="button"><i class="doc-dot"></i><span>Pulse Dashboard</span><small>5d</small></button>
+      </div>
+      <div class="sidebar-bottom">
+        <div class="user-chip"><div class="avatar">AR</div><div><strong>Aditya Ramadhan</strong><small>Free workspace</small></div><span style="margin-left:auto;color:var(--muted-2)">⋯</span></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="crumbs"><span>Product Lab</span><span class="crumb-sep">/</span><strong>PRD Studio</strong></div>
+        <div class="top-actions"><button class="ai-status" id="aiStatusBtn" type="button" title="Konfigurasi AI"><i class="ai-dot offline" id="aiDot"></i><span id="aiStatusText">AI belum terhubung</span></button><button class="icon-btn" id="themeBtn" type="button" aria-label="Ganti tema">☾</button><button class="icon-btn" id="helpBtn" type="button" aria-label="Bantuan">?</button><div class="avatar mini">AR</div></div>
+      </header>
+
+      <div class="page">
+        <div class="page-head">
+          <div><div class="eyebrow">Product documentation / 01</div><h1 class="page-title">Bentuk ide jadi PRD<br><em style="font-style:normal;color:var(--accent)">yang bisa dieksekusi.</em></h1><p class="page-subtitle">Bangun product requirement document yang jelas, terukur, dan siap dibagikan ke tim — tanpa mulai dari halaman kosong.</p></div>
+          <div class="head-meta"><div class="save-state" id="saveState">Tersimpan otomatis</div><div class="head-buttons"><button class="btn ghost" id="resetBtn" type="button">↺ Reset</button><button class="btn primary" id="aiGenerateTopBtn" type="button">✦ Generate with AI</button></div></div>
+        </div>
+
+        <div class="app-grid">
+          <section class="form-column" aria-label="Form PRD">
+            <div class="stepper" role="tablist" aria-label="Tahapan PRD">
+              <button class="step active" data-target="context" type="button"><span class="step-num">01</span><span><strong class="step-title">Context</strong><small class="step-hint">Ide & masalah</small></span></button>
+              <button class="step" data-target="strategy" type="button"><span class="step-num">02</span><span><strong class="step-title">Strategy</strong><small class="step-hint">Arah & ukuran sukses</small></span></button>
+              <button class="step" data-target="delivery" type="button"><span class="step-num">03</span><span><strong class="step-title">Delivery</strong><small class="step-hint">Scope & requirements</small></span></button>
+            </div>
+
+            <div class="tip-bar"><span>✦</span><div><b>Tip:</b> PRD yang kuat menjawab “mengapa” sebelum “apa”. Mulai dari masalah pengguna, bukan daftar fitur.</div></div>
+
+            <div class="progress-strip"><small>Kelengkapan PRD</small><div class="progress-track"><div class="progress-fill" id="progressFill"></div></div><strong id="progressText">0%</strong></div>
+
+            <article class="form-card" id="context">
+              <div class="section-head"><div><div class="eyebrow">Context</div><h2>Mulai dari inti produk</h2><p>Berikan konteks yang cukup agar semua orang memahami alasan di balik produk ini.</p></div><div class="section-num">01</div></div>
+              <div class="field-grid">
+                <div class="field"><label for="productName">Nama produk <span>Wajib</span></label><input id="productName" data-field placeholder="Contoh: Beacon" value="Beacon Mobile App"></div>
+                <div class="field"><label for="productType">Tipe produk</label><select id="productType" data-field><option>Aplikasi mobile</option><option>Web application</option><option>Internal tool</option><option>API / platform</option><option>Marketplace</option></select></div>
+                <div class="field full"><label for="oneLiner">One-liner <span>Wajib</span></label><input id="oneLiner" data-field placeholder="Jelaskan produk ini dalam satu kalimat" value="Ruang kerja mobile untuk tim lapangan yang butuh bergerak cepat, bahkan saat koneksi tidak stabil."></div>
+                <div class="field full"><label for="problem">Masalah yang ingin diselesaikan <span>Wajib</span></label><textarea id="problem" data-field class="tall" placeholder="Apa yang rusak hari ini? Siapa yang merasakan dampaknya?">Tim operasional kehilangan konteks saat berpindah antara chat, spreadsheet, dan aplikasi internal. Update lapangan terlambat, pekerjaan terduplikasi, dan manajer sulit melihat kondisi terbaru.</textarea><small class="field-note">Tulis dalam bahasa pengguna, bukan jargon internal.</small></div>
+                <div class="field full"><label>Template cepat</label><div class="chip-row"><button class="chip selected" data-template="mobile" type="button">Mobile MVP</button><button class="chip" data-template="internal" type="button">Internal tool</button><button class="chip" data-template="marketplace" type="button">Marketplace</button><button class="chip" data-template="api" type="button">API launch</button></div></div>
+              </div>
+            </article>
+
+            <article class="form-card" id="strategy">
+              <div class="section-head"><div><div class="eyebrow">Strategy</div><h2>Tentukan arah dan ukuran sukses</h2><p>Selaraskan siapa yang dilayani, perubahan yang dituju, dan cara membuktikannya.</p></div><div class="section-num">02</div></div>
+              <div class="field-grid">
+                <div class="field full"><label for="audience">Target pengguna <span>Wajib</span></label><textarea id="audience" data-field placeholder="Siapa pengguna utama dan apa konteks mereka?">Supervisor dan teknisi lapangan di perusahaan dengan 20–200 staf operasional; bekerja dari lokasi berbeda dan sering berada di area dengan koneksi terbatas.</textarea></div>
+                <div class="field"><label for="outcome">Outcome utama <span>Wajib</span></label><textarea id="outcome" data-field placeholder="Perubahan apa yang harus terjadi?">Pekerjaan lapangan tercatat sekali, lengkap, dan dapat dilihat tim secara real-time.</textarea></div>
+                <div class="field"><label for="success">Metrik sukses <span>Wajib</span></label><textarea id="success" data-field placeholder="Contoh: Aktivasi > 60%">• 70% job selesai tanpa follow-up manual<br>• Waktu membuat laporan turun 40%<br>• Weekly active teams ≥ 60%</textarea></div>
+                <div class="field"><label for="timeline">Target rilis</label><select id="timeline" data-field><option>Q3 2026 — Discovery</option><option>Q3 2026 — MVP</option><option>Q4 2026 — Beta</option><option>Belum ditentukan</option></select></div>
+                <div class="field"><label for="owner">Product owner</label><input id="owner" data-field placeholder="Nama / tim penanggung jawab" value="Product & Operations"></div>
+                <div class="field full"><label>Prioritas outcome</label><div class="chip-row priority-chips"><button class="chip selected" type="button">Efisiensi operasional</button><button class="chip" type="button">Kualitas layanan</button><button class="chip" type="button">Revenue</button><button class="chip" type="button">Adopsi pengguna</button></div></div>
+              </div>
+            </article>
+
+            <article class="form-card" id="delivery">
+              <div class="section-head"><div><div class="eyebrow">Delivery</div><h2>Jadikan bisa dibangun</h2><p>Turunkan strategi menjadi scope, user story, dan requirement yang dapat ditindaklanjuti.</p></div><div class="section-num">03</div></div>
+              <div class="field-grid">
+                <div class="field full"><label for="scope">Scope MVP <span>Wajib</span></label><textarea id="scope" data-field class="tall" placeholder="Apa yang masuk dalam versi pertama?">• Daftar pekerjaan dengan status dan prioritas
+• Form update lapangan yang tetap dapat digunakan offline
+• Sinkronisasi saat koneksi kembali
+• Ringkasan progres untuk supervisor</textarea></div>
+                <div class="field full"><label for="stories">User stories kunci</label><textarea id="stories" data-field class="tall" placeholder="Sebagai [pengguna], saya ingin [aksi], sehingga [manfaat].">• Sebagai teknisi, saya ingin melihat job hari ini sehingga saya tahu apa yang harus dikerjakan.
+• Sebagai teknisi, saya ingin menyimpan update offline sehingga progres tidak hilang.
+• Sebagai supervisor, saya ingin melihat pekerjaan yang tertunda sehingga bisa melakukan intervensi lebih awal.</textarea></div>
+                <div class="field"><label for="constraints">Constraint & dependensi</label><textarea id="constraints" data-field placeholder="Batasan teknis, legal, atau bisnis.">Perlu berjalan pada Android 9+. Integrasi awal dengan sistem work-order existing. Data lokasi harus mengikuti kebijakan privasi perusahaan.</textarea></div>
+                <div class="field"><label for="risks">Risiko & pertanyaan terbuka</label><textarea id="risks" data-field placeholder="Apa yang belum diketahui?">Apakah sinkronisasi offline aman untuk data berukuran besar? Perlu validasi alur eskalasi dengan tiga tim pilot.</textarea></div>
+                <div class="field full"><label>Section yang disertakan dalam export</label><div class="toggle-list" id="sectionToggles"><div class="toggle-row"><span>Executive summary</span><button class="switch on" data-section="summary" type="button" aria-label="Toggle executive summary"></button></div><div class="toggle-row"><span>Problem & users</span><button class="switch on" data-section="problem" type="button" aria-label="Toggle problem and users"></button></div><div class="toggle-row"><span>Goals & metrics</span><button class="switch on" data-section="goals" type="button" aria-label="Toggle goals and metrics"></button></div><div class="toggle-row"><span>Scope & user stories</span><button class="switch on" data-section="scope" type="button" aria-label="Toggle scope and stories"></button></div><div class="toggle-row"><span>Risks & rollout</span><button class="switch on" data-section="risks" type="button" aria-label="Toggle risks and rollout"></button></div><div class="toggle-row"><span>Open questions</span><button class="switch" data-section="questions" type="button" aria-label="Toggle open questions"></button></div></div></div>
+              </div>
+              <div class="form-footer" style="margin-top:22px"><span>Draft tersimpan di browser ini</span><div class="form-footer-actions"><button class="btn small" id="clearBtn" type="button">Clear fields</button><button class="btn small" id="generateBtn" type="button">Preview</button><button class="btn primary" id="aiGenerateBtn" type="button">✦ Generate with AI</button></div></div>
+            </article>
+          </section>
+
+          <aside class="preview-sticky">
+            <div class="preview-card">
+              <div class="preview-toolbar"><div class="preview-toolbar-left"><div class="traffic"><i></i><i></i><i></i></div><span class="preview-label">Live PRD preview</span></div><div style="display:flex;gap:6px"><button class="btn small" id="copyBtn" type="button">Copy</button><button class="btn small" id="exportBtn" type="button">Export ˅</button></div></div>
+              <div class="preview-body" id="previewBody"></div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+  <div class="modal-backdrop" id="aiModal"><div class="modal ai-modal"><div style="display:flex;justify-content:space-between;align-items:start"><div><div class="eyebrow">AI provider</div><h2>Hubungkan AI generator</h2></div><button class="icon-btn" id="closeAi" type="button">×</button></div><p class="modal-intro">Gunakan endpoint yang kompatibel dengan OpenAI, termasuk <code>9Router</code>. Kredensial hanya disimpan lokal di browser ini.</p><div class="ai-config-grid"><div class="field full"><label for="aiBaseUrl">Base URL <span>tanpa /chat/completions</span></label><input id="aiBaseUrl" placeholder="http://127.0.0.1:20128/v1"></div><div class="field"><label for="aiModel">Model</label><input id="aiModel" placeholder="openrouter/openai/gpt-4o-mini" value="auto"></div><div class="field"><label for="aiApiKey">API key <span>wajib untuk 9Router</span></label><input id="aiApiKey" type="password" placeholder="sk-... atau key 9Router"></div><div class="field full"><label for="aiTemperature">Temperature <span id="aiTemperatureValue">0.35</span></label><input id="aiTemperature" type="range" min="0" max="1" step="0.05" value="0.35"></div></div><div class="ai-connection" id="aiConnection"></div><div class="ai-modal-footer"><button class="btn ghost" id="testAiBtn" type="button">Test connection</button><div class="ai-modal-actions"><button class="btn" id="cancelAi" type="button">Batal</button><button class="btn primary" id="saveAiBtn" type="button">Simpan konfigurasi</button></div></div></div></div>
+  <div class="modal-backdrop" id="helpModal"><div class="modal"><div style="display:flex;justify-content:space-between;align-items:start"><div><div class="eyebrow">Prism shortcuts</div><h2>Kerja lebih cepat</h2></div><button class="icon-btn" id="closeHelp" type="button">×</button></div><div class="shortcut"><span>Generate PRD dengan AI</span><span><kbd>⌘</kbd> <kbd>Enter</kbd></span></div><div class="shortcut"><span>Copy preview</span><span><kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>C</kbd></span></div><div class="shortcut"><span>Toggle tema</span><span><kbd>⌘</kbd> <kbd>J</kbd></span></div><div class="shortcut"><span>Menutup dialog</span><span><kbd>Esc</kbd></span></div><div style="margin-top:20px;text-align:right"><button class="btn primary" id="doneHelp" type="button">Mengerti</button></div></div></div>
+
+  <script>
+    const STORAGE_KEY = 'prism-prd-draft-v1';
+    const AI_CONFIG_KEY = 'prism-ai-config-v1';
+    const defaultAiConfig = { baseUrl:'http://127.0.0.1:20128/v1', model:'auto', apiKey:'', temperature:0.35 };
+    const defaults = {
+      productName:'Beacon Mobile App', productType:'Aplikasi mobile', oneLiner:'Ruang kerja mobile untuk tim lapangan yang butuh bergerak cepat, bahkan saat koneksi tidak stabil.',
+      problem:'Tim operasional kehilangan konteks saat berpindah antara chat, spreadsheet, dan aplikasi internal. Update lapangan terlambat, pekerjaan terduplikasi, dan manajer sulit melihat kondisi terbaru.',
+      audience:'Supervisor dan teknisi lapangan di perusahaan dengan 20–200 staf operasional; bekerja dari lokasi berbeda dan sering berada di area dengan koneksi terbatas.',
+      outcome:'Pekerjaan lapangan tercatat sekali, lengkap, dan dapat dilihat tim secara real-time.',
+      success:'• 70% job selesai tanpa follow-up manual\n• Waktu membuat laporan turun 40%\n• Weekly active teams ≥ 60%',
+      timeline:'Q3 2026 — Discovery', owner:'Product & Operations',
+      scope:'• Daftar pekerjaan dengan status dan prioritas\n• Form update lapangan yang tetap dapat digunakan offline\n• Sinkronisasi saat koneksi kembali\n• Ringkasan progres untuk supervisor',
+      stories:'• Sebagai teknisi, saya ingin melihat job hari ini sehingga saya tahu apa yang harus dikerjakan.\n• Sebagai teknisi, saya ingin menyimpan update offline sehingga progres tidak hilang.\n• Sebagai supervisor, saya ingin melihat pekerjaan yang tertunda sehingga bisa melakukan intervensi lebih awal.',
+      constraints:'Perlu berjalan pada Android 9+. Integrasi awal dengan sistem work-order existing. Data lokasi harus mengikuti kebijakan privasi perusahaan.',
+      risks:'Apakah sinkronisasi offline aman untuk data berukuran besar? Perlu validasi alur eskalasi dengan tiga tim pilot.',
+      sections:{summary:true,problem:true,goals:true,scope:true,risks:true,questions:false}
+    };
+    const templates = {
+      mobile: {productName:'Beacon Mobile App',productType:'Aplikasi mobile',oneLiner:'Ruang kerja mobile untuk tim lapangan yang butuh bergerak cepat, bahkan saat koneksi tidak stabil.',problem:'Tim operasional kehilangan konteks saat berpindah antara chat, spreadsheet, dan aplikasi internal. Update lapangan terlambat, pekerjaan terduplikasi, dan manajer sulit melihat kondisi terbaru.',audience:'Supervisor dan teknisi lapangan di perusahaan dengan 20–200 staf operasional; bekerja dari lokasi berbeda dan sering berada di area dengan koneksi terbatas.',outcome:'Pekerjaan lapangan tercatat sekali, lengkap, dan dapat dilihat tim secara real-time.',success:'• 70% job selesai tanpa follow-up manual\n• Waktu membuat laporan turun 40%\n• Weekly active teams ≥ 60%',scope:'• Daftar pekerjaan dengan status dan prioritas\n• Form update lapangan yang tetap dapat digunakan offline\n• Sinkronisasi saat koneksi kembali\n• Ringkasan progres untuk supervisor',stories:defaults.stories,constraints:defaults.constraints,risks:defaults.risks},
+      internal: {productName:'Ops Console',productType:'Internal tool',oneLiner:'Satu pusat kendali untuk mengurangi pekerjaan manual dan membuat keputusan operasional lebih cepat.',problem:'Tim ops menghabiskan waktu memindahkan data antar spreadsheet dan tidak punya satu sumber kebenaran untuk status pekerjaan.',audience:'Tim operasi, finance, dan customer support yang memproses volume tinggi setiap hari.',outcome:'Satu alur kerja terstandar dengan status yang dapat dilacak dari awal sampai selesai.',success:'• Waktu proses turun 30%\n• Error input turun 50%\n• 90% pekerjaan masuk lewat workflow baru',scope:'• Queue pekerjaan terpusat\n• Role-based access\n• Filter, bulk action, dan audit trail\n• Export untuk laporan mingguan',stories:'• Sebagai ops, saya ingin memfilter queue sehingga saya dapat fokus pada kasus prioritas.\n• Sebagai manager, saya ingin melihat audit trail sehingga dapat memahami perubahan status.',constraints:'Harus kompatibel dengan SSO existing dan tidak mengubah sistem billing pada MVP.',risks:'Definisi status antar divisi belum konsisten; perlu workshop alignment.'},
+      marketplace: {productName:'Kiosku',productType:'Marketplace',oneLiner:'Marketplace terkurasi yang mempertemukan pembeli lokal dengan penjual pilihan di sekitar mereka.',problem:'Pembeli sulit menemukan penjual terpercaya di sekitar, sementara penjual kecil bergantung pada kanal yang tidak memberi konteks lokal.',audience:'Pembeli urban yang ingin belanja dari bisnis lokal dan seller kecil dengan katalog terbatas.',outcome:'Pembeli menemukan produk relevan dengan cepat dan seller menerima order yang jelas.',success:'• Search-to-order ≥ 8%\n• Repeat purchase 25% dalam 60 hari\n• 100 seller aktif di bulan pertama',scope:'• Katalog dan pencarian\n• Checkout sederhana\n• Status order\n• Seller onboarding dan moderasi dasar',stories:'• Sebagai pembeli, saya ingin melihat toko dekat saya sehingga saya dapat memilih opsi pengiriman terbaik.\n• Sebagai seller, saya ingin mengatur stok sehingga order tidak perlu dibatalkan.',constraints:'Pembayaran dan logistik memakai partner existing.',risks:'Likuiditas supply-demand harus diuji pada dua area pilot.'},
+      api: {productName:'Signal API',productType:'API / platform',oneLiner:'API observability ringan agar tim engineering memahami integrasi penting sebelum pengguna merasakan dampaknya.',problem:'Tim tidak tahu integrasi mana yang gagal sampai laporan masuk; log tersebar dan sulit dihubungkan dengan dampak bisnis.',audience:'Backend engineer dan platform team yang mengelola banyak integrasi pihak ketiga.',outcome:'Setiap kegagalan integrasi terdeteksi, dikontekstualisasikan, dan dapat ditindaklanjuti.',success:'• MTTD < 5 menit\n• 90% error punya owner\n• False alert < 10%',scope:'• Event ingestion\n• Rule dan alert dasar\n• Health dashboard\n• Webhook untuk incident tool',stories:'• Sebagai engineer, saya ingin menerima alert dengan konteks request sehingga saya dapat melakukan triage cepat.\n• Sebagai platform lead, saya ingin melihat reliability per provider sehingga dapat memprioritaskan perbaikan.',constraints:'Harus memiliki rate limit, API key rotation, dan data retention policy.',risks:'Volume event pada pelanggan enterprise belum tervalidasi.'}
+    };
+    let state = loadState();
+    let aiConfig = loadAiConfig();
+    let aiBusy = false;
+    const fieldIds = ['productName','productType','oneLiner','problem','audience','outcome','success','timeline','owner','scope','stories','constraints','risks'];
+    const $ = (id) => document.getElementById(id);
+    function loadAiConfig(){ try { return {...defaultAiConfig,...(JSON.parse(localStorage.getItem(AI_CONFIG_KEY))||{})}; } catch { return {...defaultAiConfig}; } }
+    function saveAiConfig(){ aiConfig={baseUrl:$('aiBaseUrl').value.trim().replace(/\/$/,''),model:$('aiModel').value.trim()||'auto',apiKey:$('aiApiKey').value,temperature:Number($('aiTemperature').value)}; localStorage.setItem(AI_CONFIG_KEY,JSON.stringify(aiConfig)); updateAiStatus(); }
+    function setAiForm(){ $('aiBaseUrl').value=aiConfig.baseUrl; $('aiModel').value=aiConfig.model; $('aiApiKey').value=aiConfig.apiKey; $('aiTemperature').value=aiConfig.temperature; $('aiTemperatureValue').textContent=Number(aiConfig.temperature).toFixed(2); }
+    function updateAiStatus(mode='saved'){ const dot=$('aiDot'), text=$('aiStatusText'); dot.classList.remove('offline','busy'); if(mode==='busy'){dot.classList.add('busy');text.textContent='AI sedang bekerja';return;} if(aiConfig.baseUrl && aiConfig.apiKey){text.textContent='AI siap · '+(aiConfig.model||'auto');}else{dot.classList.add('offline');text.textContent=aiConfig.baseUrl?'API key belum diisi':'AI belum terhubung';} }
+    function openAiModal(){setAiForm();$('aiConnection').textContent='';$('aiConnection').className='ai-connection';$('aiModal').classList.add('open');}
+    function closeAiModal(){$('aiModal').classList.remove('open');}
+    function aiHeaders(){const headers={'Content-Type':'application/json'};if(aiConfig.apiKey)headers.Authorization='Bearer '+aiConfig.apiKey;return headers;}
+    function aiEndpoint(path){return aiConfig.baseUrl.replace(/\/$/,'')+path;}
+    function buildAiPrompt(){const v=fieldValues();return `Anda adalah product manager senior berbahasa Indonesia. Buat PRD yang konkret, tidak mengarang fakta, dan siap dieksekusi. Gunakan data input berikut sebagai sumber kebenaran. Jika informasi kurang, tulis asumsi atau pertanyaan terbuka, jangan mengisinya dengan fakta palsu.\n\nINPUT:\nNama produk: ${v.productName}\nTipe produk: ${v.productType}\nOne-liner: ${v.oneLiner}\nMasalah: ${v.problem}\nTarget pengguna: ${v.audience}\nOutcome: ${v.outcome}\nMetrik sukses: ${v.success}\nTimeline: ${v.timeline}\nOwner: ${v.owner}\nScope MVP: ${v.scope}\nUser stories: ${v.stories}\nConstraint & dependensi: ${v.constraints}\nRisiko & pertanyaan: ${v.risks}\n\nBalas HANYA dengan JSON valid tanpa markdown atau code fence menggunakan schema persis ini:\n{"oneLiner":"...","problem":"...","audience":"...","outcome":"...","success":"...","scope":"...","stories":"...","constraints":"...","risks":"...","openQuestions":"..."}\nGunakan bahasa Indonesia. Field success, scope, stories, dan openQuestions boleh berisi bullet per baris. Pertahankan angka atau batasan yang diberikan pengguna.`;}
+    function extractJson(text){const cleaned=String(text||'').replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'').trim();try{return JSON.parse(cleaned);}catch{const start=cleaned.indexOf('{'),end=cleaned.lastIndexOf('}');if(start>=0&&end>start)return JSON.parse(cleaned.slice(start,end+1));throw new Error('Respons AI bukan JSON valid');}}
+    function responseText(data){return data?.choices?.[0]?.message?.content || data?.choices?.[0]?.text || data?.output?.[0]?.content?.[0]?.text || '';}
+    async function testAiConnection(){const base=($('aiBaseUrl').value.trim().replace(/\/$/,'')||defaultAiConfig.baseUrl);const key=$('aiApiKey').value;const msg=$('aiConnection');msg.className='ai-connection';msg.textContent='Menguji endpoint…';try{const res=await fetch(base+'/models',{headers:key?{Authorization:'Bearer '+key}:{}});if(!res.ok)throw new Error('HTTP '+res.status);const data=await res.json();const count=Array.isArray(data.data)?data.data.length:0;msg.className='ai-connection ok';msg.textContent='✓ Endpoint aktif · '+count+' model tersedia';}catch(err){msg.className='ai-connection error';msg.textContent='✕ Gagal terhubung: '+err.message+' (cek URL, API key, dan CORS)';}}
+    async function generateWithAi(){if(aiBusy)return;if(!aiConfig.baseUrl||!aiConfig.apiKey){openAiModal();showToast('Isi Base URL dan API key terlebih dahulu');return;}persist();aiBusy=true;updateAiStatus('busy');$('aiGenerateBtn').disabled=true;$('aiGenerateTopBtn').disabled=true;showToast('AI sedang menyusun PRD…');try{const res=await fetch(aiEndpoint('/chat/completions'),{method:'POST',headers:aiHeaders(),body:JSON.stringify({model:aiConfig.model||'auto',messages:[{role:'system',content:'Anda menghasilkan PRD terstruktur untuk tim product dan engineering.'},{role:'user',content:buildAiPrompt()}],temperature:Number(aiConfig.temperature)||0.35,max_tokens:5000,stream:false})});if(!res.ok){const errorText=await res.text();throw new Error('HTTP '+res.status+(errorText?' · '+errorText.slice(0,160):''));}const data=await res.json(), result=extractJson(responseText(data));const mappings={oneLiner:'oneLiner',problem:'problem',audience:'audience',outcome:'outcome',success:'success',scope:'scope',stories:'stories',constraints:'constraints',risks:'risks'};Object.entries(mappings).forEach(([target,source])=>{if(typeof result[source]==='string'&&$(target))$(target).value=result[source];});persist();updatePreview();$('saveState').textContent='PRD dibuat AI · baru saja';showToast('PRD berhasil dibuat oleh AI');}catch(err){showToast('AI gagal: '+err.message);console.error(err);}finally{aiBusy=false;updateAiStatus();$('aiGenerateBtn').disabled=false;$('aiGenerateTopBtn').disabled=false;}}
+    function loadState(){ try { return {...defaults, ...(JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}), sections:{...defaults.sections,...((JSON.parse(localStorage.getItem(STORAGE_KEY))||{}).sections||{})}} } catch { return structuredClone(defaults); } }
+    function fieldValues(){ const data={}; fieldIds.forEach(id=>data[id]=$(id).value); data.sections=state.sections; return data; }
+    function persist(){ state=fieldValues(); localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); $('saveState').textContent='Tersimpan otomatis · baru saja'; }
+    function escapeHtml(value=''){ return String(value).replace(/[&<>"']/g, char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char])); }
+    function paragraph(value, fallback='Belum diisi.'){ return value && value.trim() ? escapeHtml(value.trim()).replace(/\n/g,'<br>') : `<span class="preview-empty">${fallback}</span>`; }
+    function bullets(value, fallback='Belum ada detail.'){ const lines=(value||'').split('\n').map(s=>s.trim()).filter(Boolean); if(!lines.length)return `<span class="preview-empty">${fallback}</span>`; return `<ul>${lines.map(line=>`<li>${escapeHtml(line.replace(/^[-•*]\s*/,''))}</li>`).join('')}</ul>`; }
+    function makePreview(){
+      const v=fieldValues(), s=v.sections||defaults.sections; const name=v.productName||'Untitled product';
+      let html=`<div class="preview-doc-kicker">Product requirement document</div><h1>${escapeHtml(name)}</h1><p class="preview-lede">${paragraph(v.oneLiner,'Satu kalimat yang menjelaskan produk ini.')}</p><div class="preview-meta"><span>${escapeHtml(v.productType||'Product')}</span><span>${escapeHtml(v.timeline||'Timeline TBD')}</span><span>Draft · v0.1</span></div>`;
+      if(s.summary) html+=`<section class="preview-section"><h3>Executive summary</h3><p>${paragraph(v.outcome,'Ringkasan outcome belum diisi.')}</p><div class="preview-callout">Tujuan dokumen: menyamakan konteks, keputusan, dan batasan sebelum pekerjaan dimulai.</div></section>`;
+      if(s.problem) html+=`<section class="preview-section"><h3>Problem & users</h3><p><strong style="color:#39434a">Problem</strong><br>${paragraph(v.problem)}</p><p style="margin-top:10px"><strong style="color:#39434a">Target pengguna</strong><br>${paragraph(v.audience)}</p></section>`;
+      if(s.goals) html+=`<section class="preview-section"><h3>Goals & metrics</h3><p>${paragraph(v.outcome)}</p><div style="margin-top:8px"><strong style="font-size:11px;color:#39434a">How we know it works</strong>${bullets(v.success)}</div></section>`;
+      if(s.scope) html+=`<section class="preview-section"><h3>Scope & user stories</h3><div><strong style="font-size:11px;color:#39434a">In scope for MVP</strong>${bullets(v.scope)}</div><div style="margin-top:10px"><strong style="font-size:11px;color:#39434a">Key user stories</strong>${bullets(v.stories)}</div></section>`;
+      if(s.risks) html+=`<section class="preview-section"><h3>Constraints & rollout</h3><p><strong style="color:#39434a">Constraints</strong><br>${paragraph(v.constraints)}</p><p style="margin-top:10px"><strong style="color:#39434a">Risks</strong><br>${paragraph(v.risks)}</p></section>`;
+      if(s.questions) html+=`<section class="preview-section"><h3>Open questions</h3><p>• Siapa yang menjadi decision maker untuk scope MVP?<br>• Apa asumsi paling berisiko yang perlu diuji minggu ini?<br>• Bagaimana definisi “siap dirilis” untuk pilot?</p></section>`;
+      html+=`<div class="preview-foot"><span>Owner: ${escapeHtml(v.owner||'Unassigned')}</span><span>Updated just now</span></div>`; return html;
+    }
+    function updatePreview(){ $('previewBody').innerHTML=makePreview(); updateProgress(); }
+    function updateProgress(){ const v=fieldValues(); const required=['productName','oneLiner','problem','audience','outcome','success','scope']; const complete=required.filter(id=>v[id].trim().length>0).length; const sections=Object.values(v.sections).filter(Boolean).length; const pct=Math.min(100,Math.round((complete/required.length)*78 + (sections/6)*22)); $('progressFill').style.width=pct+'%'; $('progressText').textContent=pct+'%'; }
+    function hydrate(){ fieldIds.forEach(id=>{ if(state[id] !== undefined) $(id).value=state[id]; }); document.querySelectorAll('.switch').forEach(btn=>{btn.classList.toggle('on', state.sections?.[btn.dataset.section] ?? btn.classList.contains('on'));}); updatePreview(); }
+    function showToast(message){ const t=$('toast'); t.textContent=message; t.classList.add('show'); clearTimeout(window.toastTimer); window.toastTimer=setTimeout(()=>t.classList.remove('show'),2300); }
+    function markdown(){ const v=fieldValues(), s=v.sections||{}; let out=`# ${v.productName||'Untitled product'}\n\n> ${v.oneLiner||'Product brief'}\n\n`; if(s.summary)out+=`## Executive summary\n${v.outcome||'—'}\n\n`; if(s.problem)out+=`## Problem & users\n### Problem\n${v.problem||'—'}\n\n### Target users\n${v.audience||'—'}\n\n`; if(s.goals)out+=`## Goals & metrics\n### Outcome\n${v.outcome||'—'}\n\n### Success metrics\n${v.success||'—'}\n\n`; if(s.scope)out+=`## Scope & user stories\n### MVP scope\n${v.scope||'—'}\n\n### User stories\n${v.stories||'—'}\n\n`; if(s.risks)out+=`## Constraints & rollout\n### Constraints\n${v.constraints||'—'}\n\n### Risks\n${v.risks||'—'}\n\n`; if(s.questions)out+=`## Open questions\n- Who owns the MVP decision?\n- What is the riskiest assumption to validate?\n- What is the definition of ready for pilot?\n\n`; out+=`---\nOwner: ${v.owner||'Unassigned'}  \nTimeline: ${v.timeline||'TBD'}  \nGenerated with Prism PRD Studio`; return out; }
+    function download(filename, content, type){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([content],{type})); a.download=filename; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),500); }
+    function generate(){ persist(); updatePreview(); $('saveState').textContent='PRD berhasil dibuat · baru saja'; showToast('PRD berhasil diperbarui'); document.querySelector('.preview-card').animate([{transform:'scale(.995)'},{transform:'scale(1)'}],{duration:240,easing:'ease-out'}); }
+    function applyTemplate(key){ const tpl=templates[key]; if(!tpl)return; Object.entries(tpl).forEach(([id,val])=>{if($(id))$(id).value=val}); document.querySelectorAll('[data-template]').forEach(c=>c.classList.toggle('selected',c.dataset.template===key)); persist(); updatePreview(); showToast('Template '+key+' diterapkan'); }
+    fieldIds.forEach(id=>$(id).addEventListener('input',()=>{ updatePreview(); clearTimeout(window.saveTimer); window.saveTimer=setTimeout(persist,350); }));
+    document.querySelectorAll('.switch').forEach(btn=>btn.addEventListener('click',()=>{btn.classList.toggle('on'); state.sections[btn.dataset.section]=btn.classList.contains('on'); persist(); updatePreview();}));
+    document.querySelectorAll('.chip').forEach(chip=>chip.addEventListener('click',()=>{ if(chip.dataset.template){applyTemplate(chip.dataset.template);return;} chip.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected')); chip.classList.add('selected'); }));
+    document.querySelectorAll('.step').forEach(step=>step.addEventListener('click',()=>{document.getElementById(step.dataset.target).scrollIntoView({behavior:'smooth'});document.querySelectorAll('.step').forEach(s=>s.classList.toggle('active',s===step));}));
+    $('generateBtn').addEventListener('click',generate);
+    $('aiGenerateBtn').addEventListener('click',generateWithAi); $('aiGenerateTopBtn').addEventListener('click',generateWithAi);
+    $('aiStatusBtn').addEventListener('click',openAiModal); $('closeAi').addEventListener('click',closeAiModal); $('cancelAi').addEventListener('click',closeAiModal); $('aiModal').addEventListener('click',e=>{if(e.target.id==='aiModal')closeAiModal()});
+    $('aiTemperature').addEventListener('input',e=>$('aiTemperatureValue').textContent=Number(e.target.value).toFixed(2));
+    $('testAiBtn').addEventListener('click',testAiConnection); $('saveAiBtn').addEventListener('click',()=>{saveAiConfig();closeAiModal();showToast('Konfigurasi AI disimpan');});
+    $('copyBtn').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(markdown());showToast('Markdown disalin ke clipboard')}catch{showToast('Clipboard tidak tersedia — gunakan Export')}});
+    $('exportBtn').addEventListener('click',()=>{download((fieldValues().productName||'prd').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.md',markdown(),'text/markdown');showToast('PRD Markdown sedang diunduh');});
+    $('themeBtn').addEventListener('click',()=>{document.body.classList.toggle('light');localStorage.setItem('prism-theme',document.body.classList.contains('light')?'light':'dark');$('themeBtn').textContent=document.body.classList.contains('light')?'☀':'☾';});
+    $('resetBtn').addEventListener('click',()=>{if(confirm('Reset semua field ke template awal?')){state=structuredClone(defaults);localStorage.removeItem(STORAGE_KEY);hydrate();showToast('Draft dikembalikan ke awal');}});
+    $('clearBtn').addEventListener('click',()=>{fieldIds.forEach(id=>$(id).value='');persist();updatePreview();showToast('Field dikosongkan');});
+    $('newDocBtn').addEventListener('click',()=>{fieldIds.forEach(id=>$(id).value='');$('productName').value='Untitled PRD';persist();updatePreview();showToast('Draft baru dibuat');window.scrollTo({top:0,behavior:'smooth'});});
+    $('helpBtn').addEventListener('click',()=>$('helpModal').classList.add('open')); $('closeHelp').addEventListener('click',()=>$('helpModal').classList.remove('open')); $('doneHelp').addEventListener('click',()=>$('helpModal').classList.remove('open')); $('helpModal').addEventListener('click',e=>{if(e.target.id==='helpModal')$('helpModal').classList.remove('open')});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeAiModal();$('helpModal').classList.remove('open');} if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();generateWithAi();} if((e.metaKey||e.ctrlKey)&&e.shiftKey&&e.key.toLowerCase()==='c'){e.preventDefault();$('copyBtn').click();} if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='j'){e.preventDefault();$('themeBtn').click();}});
+    if(localStorage.getItem('prism-theme')==='light'){document.body.classList.add('light');$('themeBtn').textContent='☀';} hydrate(); updateAiStatus();
+  </script>
+</body>
+</html>
