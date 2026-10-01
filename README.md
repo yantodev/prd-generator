@@ -132,15 +132,26 @@ Payload rute AI membutuhkan `{ baseUrl, apiKey, model, ... }` dari client.
 
 ---
 
+## 🐳 Docker
+
+Build dan jalankan production image:
+
+```bash
+docker build -t prd-generator:local .
+docker run --rm -p 3000:3000 prd-generator:local
+```
+
+Image memakai Next.js standalone output dan menjalankan server sebagai user non-root.
+
 ## 🛠️ Scripts
 
 ```bash
-npm run dev        # Dev server (Turbopack)
-npm run build      # Production build
-npm run start      # Jalankan build hasil
-npm run lint       # ESLint
-npm run typecheck  # tsc --noEmit
-npm run format     # Prettier
+npm run dev
+npm run build
+npm run start
+npm run lint
+npm run typecheck
+npm run format
 ```
 
 ---
